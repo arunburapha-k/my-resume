@@ -640,12 +640,18 @@ export default function ResumeApp() {
       {/* NAV (Magnet Applied) */}
       <div className="fixed top-6 right-6 z-50 flex gap-3">
         <Magnet>
-          <button onClick={() => setLanguage(language === 'en' ? 'th' : 'en')} className={`p-2 px-4 rounded font-mono text-sm border transition-all backdrop-blur ${darkMode ? 'border-slate-700 bg-slate-900/80 text-cyan-400 hover:bg-cyan-900/20' : 'border-slate-300 bg-white/80 text-cyan-600 hover:bg-cyan-50'}`}>
-            [{language.toUpperCase()}]
+          <button 
+            onClick={() => setLanguage(language === 'en' ? 'th' : 'en')} 
+            className={`w-10 h-10 flex items-center justify-center rounded font-mono text-xs border transition-all backdrop-blur ${darkMode ? 'border-slate-700 bg-slate-900/80 text-cyan-400 hover:bg-cyan-900/20' : 'border-slate-300 bg-white/80 text-cyan-600 hover:bg-cyan-50'}`}
+          >
+            {language.toUpperCase()}
           </button>
         </Magnet>
         <Magnet>
-          <button onClick={() => setDarkMode(!darkMode)} className={`p-2 rounded border transition-all backdrop-blur ${darkMode ? 'border-slate-700 bg-slate-900/80 text-cyan-400 hover:bg-cyan-900/20' : 'border-slate-300 bg-white/80 text-cyan-600 hover:bg-cyan-50'}`}>
+          <button 
+            onClick={() => setDarkMode(!darkMode)} 
+            className={`w-10 h-10 flex items-center justify-center rounded border transition-all backdrop-blur ${darkMode ? 'border-slate-700 bg-slate-900/80 text-cyan-400 hover:bg-cyan-900/20' : 'border-slate-300 bg-white/80 text-cyan-600 hover:bg-cyan-50'}`}
+          >
             {darkMode ? '☀' : '☾'}
           </button>
         </Magnet>
