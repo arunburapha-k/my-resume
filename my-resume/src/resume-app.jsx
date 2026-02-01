@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import profileImg from './assets/profile.png';
 // นำเข้า React Icons (Bootstrap Icons)
-import {
-  BsRobot,
-  BsEnvelope, BsTelephone, BsGeoAlt,
-  BsFilm, BsPeopleFill, BsHeartPulse,
+import { 
+  BsRobot, 
+  BsEnvelope, BsTelephone, BsGeoAlt, 
+  BsFilm, BsPeopleFill, BsHeartPulse, 
   BsArrowUp, BsArrowRight, BsTerminal, BsCodeSlash, BsLightningCharge, BsAward
 } from 'react-icons/bs';
 
@@ -33,6 +33,50 @@ function storageSet(key, value) {
   } catch { /* ignore */ }
 }
 
+// --- NEW COMPONENT: SCROLL REVEAL (อนิเมชันสไลด์ลงแบบไป-กลับ Loop ได้) ---
+const ScrollReveal = ({ children, delay = 0, className = "" }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // แก้ไข: อัปเดตสถานะตามจริงตลอดเวลา (ไม่ disconnect)
+        // เมื่อเลื่อนมาเจอ -> isVisible = true (ไหลลงมา)
+        // เมื่อเลื่อนผ่านไป -> isVisible = false (ไหลกลับขึ้นไป/จางหาย)
+        setIsVisible(entry.isIntersecting);
+      },
+      { 
+        threshold: 0.1, // เห็นแค่ 10% ก็เริ่มทำงาน
+        rootMargin: "-50px" // สั่งให้เริ่มทำงานก่อนถึงขอบจอนิดหน่อย เพื่อความสมูท
+      } 
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      // เพิ่ม will-change-transform เพื่อประสิทธิภาพที่ดีขึ้นเมื่ออนิเมชันเล่นซ้ำๆ
+      className={`transform transition-all duration-700 ease-out will-change-transform ${className} ${
+        isVisible 
+          ? 'opacity-100 translate-y-0'   // สถานะเข้ามาในจอ: ชัดเจน + ไหลลงมาที่เดิม
+          : 'opacity-0 -translate-y-12'   // สถานะหลุดจากจอ: จางหาย + ไหลย้อนกลับขึ้นไป
+      }`}
+      style={{ transitionDelay: isVisible ? `${delay}ms` : '0ms' }} // ใส่ delay เฉพาะตอนขาเข้า ขาออกให้หายวับไปเลยจะได้ไม่หน่วง
+    >
+      {children}
+    </div>
+  );
+};
+
 // --- NEW COMPONENT: Shiny Text (Fixed Visibility) ---
 const ShinyText = ({ text, disabled = false, speed = 3, className = '' }) => {
   const animationDuration = `${speed}s`;
@@ -40,13 +84,10 @@ const ShinyText = ({ text, disabled = false, speed = 3, className = '' }) => {
     <div
       className={`relative inline-block overflow-hidden ${className}`}
     >
-      {/* 1. ตัวอักษรหลัก (มองเห็นชัดเจนตามสีที่กำหนด) */}
       <span className="relative z-0 block">
         {text}
       </span>
-
-      {/* 2. เลเยอร์แสงเงา (ซ้อนทับด้านบน) */}
-      <span
+      <span 
         className="absolute inset-0 z-10 block text-transparent bg-clip-text shiny-text pointer-events-none"
         style={{
           backgroundImage: 'linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.8) 50%, transparent 60%)',
@@ -57,7 +98,6 @@ const ShinyText = ({ text, disabled = false, speed = 3, className = '' }) => {
       >
         {text}
       </span>
-
       <style>{`
         @keyframes shine {
           0% { background-position: 100%; }
@@ -70,6 +110,7 @@ const ShinyText = ({ text, disabled = false, speed = 3, className = '' }) => {
     </div>
   );
 };
+
 // --- NEW COMPONENT: Magnet Button (ปุ่มดูดเมาส์) ---
 const Magnet = ({ children, padding = 20, disabled = false, magnetStrength = 20 }) => {
   const [isActive, setIsActive] = useState(false);
@@ -123,19 +164,19 @@ const Magnet = ({ children, padding = 20, disabled = false, magnetStrength = 20 
 
 const PixelBlast = ({ colors, gap = 12, speed = 0.08 }) => {
   const canvasRef = useRef(null);
-
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
+    
     const ctx = canvas.getContext("2d");
     let animationFrameId;
     let particles = [];
     let mouse = { x: undefined, y: undefined };
-
+    
     const resizeCanvas = () => {
       const parent = canvas.parentElement;
-      if (parent) {
+      if(parent) {
         canvas.width = parent.clientWidth;
         canvas.height = parent.clientHeight;
         initParticles();
@@ -178,7 +219,7 @@ const PixelBlast = ({ colors, gap = 12, speed = 0.08 }) => {
 
         this.vx += (this.originX - this.x) * this.ease;
         this.vy += (this.originY - this.y) * this.ease;
-
+        
         this.vx *= this.friction;
         this.vy *= this.friction;
 
@@ -210,9 +251,9 @@ const PixelBlast = ({ colors, gap = 12, speed = 0.08 }) => {
     };
 
     const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
     };
 
     const handleMouseLeave = () => { mouse.x = undefined; mouse.y = undefined; };
@@ -220,7 +261,7 @@ const PixelBlast = ({ colors, gap = 12, speed = 0.08 }) => {
     window.addEventListener("resize", resizeCanvas);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseleave", handleMouseLeave);
-
+    
     resizeCanvas();
     animate();
 
@@ -244,19 +285,27 @@ const DecryptedText = ({ text, className }) => {
     let iteration = 0;
     const interval = setInterval(() => {
       setDisplayText(prev =>
-        text.split("").map((letter, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
+        text
+          .split("")
+          .map((letter, index) => {
+            if (index < iteration) return text[index];
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join("")
       );
+
       if (iteration >= text.length) clearInterval(interval);
       iteration += 1 / 3;
     }, 30);
+
     return () => clearInterval(interval);
   }, [text, isHovered]);
 
   return (
-    <span className={className} onMouseEnter={() => setIsHovered(!isHovered)}>
+    <span 
+      className={className}
+      onMouseEnter={() => setIsHovered(!isHovered)}
+    >
       {displayText}
     </span>
   );
@@ -276,8 +325,8 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(6, 182
   const handleMouseEnter = () => setOpacity(1);
   const handleMouseLeave = () => setOpacity(0);
 
-  const themeClasses = darkMode
-    ? "border-neutral-800 bg-neutral-900/50 shadow-none"
+  const themeClasses = darkMode 
+    ? "border-neutral-800 bg-neutral-900/50 shadow-none" 
     : "border-slate-200 bg-white/70 shadow-sm hover:shadow-md";
 
   return (
@@ -296,6 +345,8 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(6, 182
         }}
       />
       <div className="relative h-full">{children}</div>
+      
+      {/* Corner Brackets */}
       <div className="absolute top-0 left-0 w-2 h-2 border-l-2 border-t-2 border-cyan-500/30"></div>
       <div className="absolute top-0 right-0 w-2 h-2 border-r-2 border-t-2 border-cyan-500/30"></div>
       <div className="absolute bottom-0 left-0 w-2 h-2 border-l-2 border-b-2 border-cyan-500/30"></div>
@@ -308,7 +359,7 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(6, 182
 
 export default function ResumeApp() {
   const [activeSection, setActiveSection] = useState('about');
-  const [darkMode, setDarkMode] = useState(() => storageGet(STORAGE_KEYS.theme, true));
+  const [darkMode, setDarkMode] = useState(() => storageGet(STORAGE_KEYS.theme, true)); 
   const [language, setLanguage] = useState(() => storageGet(STORAGE_KEYS.lang, 'en'));
   const [scrollProgress, setScrollProgress] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -318,9 +369,10 @@ export default function ResumeApp() {
   const [typedText, setTypedText] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const pixelColors = darkMode
-    ? ['#22d3ee', '#34d399', '#ffffff', '#0ea5e9']
-    : ['#0891b2', '#059669', '#64748b', '#0369a1'];
+  // --- CONFIG: สีของ Pixel Blast (เปลี่ยนตามธีม) ---
+  const pixelColors = darkMode 
+    ? ['#22d3ee', '#34d399', '#ffffff', '#0ea5e9'] // Dark Mode: สว่าง, เรืองแสง
+    : ['#0891b2', '#059669', '#64748b', '#0369a1']; // Light Mode: เข้ม, ชัดเจนบนพื้นขาว
 
   useEffect(() => {
     const handleScroll = () => {
@@ -341,12 +393,15 @@ export default function ResumeApp() {
     return () => clearTimeout(timer);
   }, []);
 
+  // --- Typing Animation ---
   useEffect(() => {
     if (loading) return;
+
     const rolesData = {
-      en: ["AI Engineer", "Software Engineer", "Backend Developer", "DevOps", "Frontend Developer"],
-      th: ["วิศวกร AI", "วิศวกรซอฟต์แวร์", "นักพัฒนา Backend", "DevOps", "นักพัฒนา Frontend"]
+      en: [ "AI Engineer", "Software Engineer", "Backend Developer", "DevOps", "Frontend Developer" ],
+      th: [ "วิศวกร AI", "วิศวกรซอฟต์แวร์", "นักพัฒนา Backend", "DevOps", "นักพัฒนา Frontend" ]
     };
+
     const currentRoles = rolesData[language] || rolesData.en;
     let roleIndex = 0;
     let charIndex = 0;
@@ -356,7 +411,8 @@ export default function ResumeApp() {
     const type = () => {
       if (roleIndex >= currentRoles.length) roleIndex = 0;
       const currentRole = currentRoles[roleIndex];
-      const prefix = "> ";
+      const prefix = "> "; 
+
       if (isDeleting) {
         setTypedText(prefix + currentRole.substring(0, charIndex));
         charIndex--;
@@ -364,15 +420,17 @@ export default function ResumeApp() {
         setTypedText(prefix + currentRole.substring(0, charIndex + 1));
         charIndex++;
       }
-      let speed = 150;
-      if (isDeleting) speed = 50;
+
+      let speed = 150; 
+      if (isDeleting) speed = 50; 
+
       if (!isDeleting && charIndex === currentRole.length) {
-        speed = 4000;
+        speed = 4000; 
         isDeleting = true;
       } else if (isDeleting && charIndex === 0) {
         isDeleting = false;
-        roleIndex = (roleIndex + 1) % currentRoles.length;
-        speed = 1000;
+        roleIndex = (roleIndex + 1) % currentRoles.length; 
+        speed = 1000; 
       }
       timer = setTimeout(type, speed);
     };
@@ -405,7 +463,7 @@ export default function ResumeApp() {
       window.scrollTo({ top: offset, behavior: 'smooth' });
     }
   };
-
+  
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -437,13 +495,16 @@ export default function ResumeApp() {
       builtWith: "System architecture: React • Status: Open",
       quote: '"Hardware eventually fails. Software eventually works." - Michael Hartung',
       loading: "SYSTEM BOOT SEQUENCE...",
+
       name: "Arunburapha Keoket",
       title: "Electronic Computer Technology Student",
       about: "Fourth-year student in Electronic Computer Technology at King Mongkut's University of Technology North Bangkok. I possess strong learning agility, a solid grasp of programming concepts, and effective teamwork skills. I am currently seeking an internship opportunity in Programming, Web Development, and Database Management, eager to apply my academic knowledge to real-world projects and contribute to organizational success.",
+
       position: "Seeking Internship Position",
       company: "Available for Internship",
       period: "20 April 2026 - 31 July 2026",
       description: "Targeting sectors: Programming, Web Development, and Database Management. Ready to deploy skills in real-world environments.",
+
       achievements: [
         "Polyglot programming capabilities",
         "IoT System Architecture & Integration",
@@ -491,13 +552,16 @@ export default function ResumeApp() {
       builtWith: "สถาปัตยกรรมระบบ: React • สถานะ: เปิดรับ",
       quote: '"ฮาร์ดแวร์พังได้เสมอ ซอฟต์แวร์ทำงานได้เสมอ (ในที่สุด)"',
       loading: "กำลังบูตระบบ...",
+
       name: "อรุณบูรพา แก้วเกล็ด",
       title: "นักศึกษาอิเล็กทรอนิกส์คอมพิวเตอร์เทคโนโลยี",
       about: "นักศึกษาชั้นปีที่ 4 สาขาเทคโนโลยีคอมพิวเตอร์อิเล็กทรอนิกส์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ ผมมีทักษะการเรียนรู้ที่รวดเร็ว เข้าใจหลักการเขียนโปรแกรมอย่างลึกซึ้ง และมีทักษะการทำงานเป็นทีมที่ดีเยี่ยม ขณะนี้กำลังมองหาโอกาสฝึกงานในด้านการเขียนโปรแกรม, การพัฒนาเว็บ และการจัดการฐานข้อมูล โดยมีความมุ่งมั่นที่จะนำความรู้ทางวิชาการมาประยุกต์ใช้กับโปรเจกต์จริงเพื่อสร้างความสำเร็จให้กับองค์กร",
+
       position: "กำลังหาที่ฝึกงาน",
       company: "พร้อมฝึกงาน",
       period: "20 เมษายน 2026 - 31 กรกฎาคม 2026",
       description: "เป้าหมาย: การเขียนโปรแกรม, การพัฒนาเว็บ และการจัดการฐานข้อมูล พร้อมนำทักษะไปใช้ในสภาพแวดล้อมจริง",
+
       achievements: [
         "ความสามารถในการเขียนโปรแกรมหลายภาษา",
         "สถาปัตยกรรมระบบ IoT และการเชื่อมต่อ",
@@ -598,7 +662,7 @@ export default function ResumeApp() {
           <div className="mb-2 text-xs opacity-50">BIOS_CHECK... OK</div>
           <div className="mb-2 text-xs opacity-50">LOADING_MODULES... OK</div>
           <div className="h-1 w-full bg-slate-900 rounded overflow-hidden">
-            <div className="h-full bg-cyan-500 animate-[width_2s_ease-out_forwards]" style={{ width: '100%' }}></div>
+            <div className="h-full bg-cyan-500 animate-[width_2s_ease-out_forwards]" style={{width: '100%'}}></div>
           </div>
           <div className="mt-2 text-center animate-pulse">{t.loading}</div>
         </div>
@@ -630,7 +694,7 @@ export default function ResumeApp() {
       <div className="fixed top-0 left-0 h-1 z-[100] scroll-progress" style={{ width: `${scrollProgress}%` }}></div>
 
       {/* SCROLL TOP */}
-      <button
+      <button 
         onClick={scrollToTop}
         className={`fixed bottom-8 right-8 z-50 p-3 border border-cyan-500 bg-slate-900/90 text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 transition-all duration-300 backdrop-blur shadow-[0_0_15px_rgba(6,182,212,0.3)] group ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
       >
@@ -659,10 +723,10 @@ export default function ResumeApp() {
 
       {/* HERO SECTION */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-
+        
         {/* PIXEL BLAST LAYER */}
         <div className="absolute inset-0 z-0">
-          <PixelBlast colors={pixelColors} gap={20} speed={0.03} />
+           <PixelBlast colors={pixelColors} gap={20} speed={0.03} />
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center content-wrapper">
@@ -672,7 +736,7 @@ export default function ResumeApp() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <ShinyText text={t.availableFor} className={darkMode ? 'text-emerald-400' : 'text-emerald-700'} />
             </div>
-
+            
             <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight leading-tight">
               <span className={`font-mono text-2xl block mb-2 ${darkMode ? 'text-slate-500' : 'text-slate-600'}`}>{t.aboutTitle}</span>
               <DecryptedText text={t.name} className={darkMode ? 'text-white' : 'text-slate-900'} />
@@ -681,7 +745,7 @@ export default function ResumeApp() {
             <div className={`h-12 flex items-center font-mono text-xl md:text-2xl mb-8 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
               {typedText}<span className="animate-pulse text-cyan-500">_</span>
             </div>
-
+            
             <div className="flex flex-wrap gap-4">
               <Magnet>
                 <button onClick={() => scrollToSection('projects')} className="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-mono rounded-none border-l-4 border-white transition-all hover:translate-x-1 flex items-center gap-2 shadow-lg">
@@ -695,7 +759,7 @@ export default function ResumeApp() {
               </Magnet>
             </div>
           </div>
-
+          
           <div className="relative group flex justify-center">
             <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-700"></div>
             <div className={`relative w-64 h-64 md:w-80 md:h-80 rounded-full border-2 p-2 flex items-center justify-center backdrop-blur-sm ${darkMode ? 'border-slate-800 bg-slate-950/50' : 'border-slate-300 bg-white/30'}`}>
@@ -715,18 +779,14 @@ export default function ResumeApp() {
           <nav className="flex gap-1 md:gap-4 min-w-max py-2">
             {t.sections.map((section) => (
               <Magnet key={section.id} padding={10} magnetStrength={20}>
-                <button
-                  onClick={() => scrollToSection(section.id)}
-                  // --- แก้ไข CSS ตรงนี้ ---
-                  // 1. ลบ border-b-2 ออก (ต้นเหตุปัญหา)
-                  // 2. ใส่ rounded-lg หรือ rounded-full (เพื่อให้เป็นทรงปุ่มสวยๆ)
-                  // 3. ปรับ Logic สี เป็นการเปลี่ยน bg แทน border
+                <button 
+                  onClick={() => scrollToSection(section.id)} 
                   className={`px-4 py-2 text-sm font-mono rounded-lg transition-all duration-300 
-                    ${activeSection === section.id
-                      ? (darkMode
-                        ? 'bg-cyan-500/10 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]' // Active Dark
-                        : 'bg-cyan-100 text-cyan-700 shadow-sm' // Active Light
-                      )
+                    ${activeSection === section.id 
+                      ? (darkMode 
+                          ? 'bg-cyan-500/10 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]' // Active Dark
+                          : 'bg-cyan-100 text-cyan-700 shadow-sm' // Active Light
+                        ) 
                       : 'bg-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800' // Inactive
                     }`}
                 >
@@ -738,205 +798,231 @@ export default function ResumeApp() {
         </div>
       </div>
 
-      {/* CONTENT (Same as before but with Shiny Text in Key Highlights) */}
+      {/* CONTENT (Wrapped with ScrollReveal) */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 space-y-32">
-
+        
         {/* ABOUT */}
         <section id="section-about" data-section="about" className="max-w-4xl">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>01.</span> {t.aboutTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className={`p-8 border rounded-xl shadow-sm ${darkMode ? 'border-slate-800 bg-slate-900/30' : 'border-slate-200 bg-white/60'}`}>
-            <p className={`text-xl leading-relaxed font-light ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{t.about}</p>
-          </div>
+          <ScrollReveal>
+             <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>01.</span> {t.aboutTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className={`p-8 border rounded-xl shadow-sm ${darkMode ? 'border-slate-800 bg-slate-900/30' : 'border-slate-200 bg-white/60'}`}>
+               <p className={`text-xl leading-relaxed font-light ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{t.about}</p>
+            </div>
+          </ScrollReveal>
         </section>
 
         {/* SKILLS */}
         <section id="section-skills" data-section="skills">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>02.</span> {t.skillsTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {resumeData.skills.map((category, idx) => (
-              <SpotlightCard key={idx} className="p-8" darkMode={darkMode}>
-                <h3 className={`font-mono mb-6 border-b pb-2 flex items-center gap-2 ${darkMode ? 'text-cyan-400 border-slate-800' : 'text-cyan-700 border-slate-200'}`}>
-                  <BsTerminal className="opacity-70" /> {category.category}
-                </h3>
-                <div className="space-y-4">
-                  {category.items.map((skill, sIdx) => (
-                    <div key={sIdx}>
-                      <div className={`flex justify-between text-sm mb-1 font-mono ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                        <span>{skill.name}</span>
-                        <span>{skill.level}%</span>
+          <ScrollReveal>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>02.</span> {t.skillsTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {resumeData.skills.map((category, idx) => (
+                <SpotlightCard key={idx} className="p-8" darkMode={darkMode}>
+                  <h3 className={`font-mono mb-6 border-b pb-2 flex items-center gap-2 ${darkMode ? 'text-cyan-400 border-slate-800' : 'text-cyan-700 border-slate-200'}`}>
+                    <BsTerminal className="opacity-70"/> {category.category}
+                  </h3>
+                  <div className="space-y-4">
+                    {category.items.map((skill, sIdx) => (
+                      <div key={sIdx}>
+                        <div className={`flex justify-between text-sm mb-1 font-mono ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                          <span>{skill.name}</span>
+                          <span>{skill.level}%</span>
+                        </div>
+                        <div className={`h-1 w-full ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                          <div className="h-full bg-emerald-500" style={{width: `${skill.level}%`}}></div>
+                        </div>
                       </div>
-                      <div className={`h-1 w-full ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
-                        <div className="h-full bg-emerald-500" style={{ width: `${skill.level}%` }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </SpotlightCard>
-            ))}
-          </div>
+                    ))}
+                  </div>
+                </SpotlightCard>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
         {/* PROJECTS */}
         <section id="section-projects" data-section="projects">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>03.</span> {t.projectsTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {resumeData.projects.map((project, idx) => (
-              <SpotlightCard key={idx} className="group cursor-pointer" spotlightColor="rgba(16, 185, 129, 0.15)" darkMode={darkMode}>
-                <div onClick={() => setSelectedProject(project)} className="p-6 h-full flex flex-col">
-                  <div className={`mb-4 overflow-hidden rounded border relative ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                    <img src={project.image} alt={project.name} className={`w-full h-40 object-cover group-hover:opacity-100 transition-all group-hover:scale-105 ${darkMode ? 'opacity-80' : 'opacity-90'}`} />
-                    <div className={`absolute bottom-2 right-2 px-2 py-1 text-xs font-mono border rounded flex items-center gap-1 ${darkMode ? 'bg-black/80 text-emerald-400 border-emerald-500/50' : 'bg-white/90 text-emerald-700 border-emerald-600/50'}`}>
-                      <BsLightningCharge /> DEPLOYED
+          <ScrollReveal>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>03.</span> {t.projectsTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className="grid md:grid-cols-3 gap-6">
+              {resumeData.projects.map((project, idx) => (
+                <SpotlightCard key={idx} className="group cursor-pointer" spotlightColor="rgba(16, 185, 129, 0.15)" darkMode={darkMode}>
+                  <div onClick={() => setSelectedProject(project)} className="p-6 h-full flex flex-col">
+                    <div className={`mb-4 overflow-hidden rounded border relative ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                       <img src={project.image} alt={project.name} className={`w-full h-40 object-cover group-hover:opacity-100 transition-all group-hover:scale-105 ${darkMode ? 'opacity-80' : 'opacity-90'}`} />
+                       <div className={`absolute bottom-2 right-2 px-2 py-1 text-xs font-mono border rounded flex items-center gap-1 ${darkMode ? 'bg-black/80 text-emerald-400 border-emerald-500/50' : 'bg-white/90 text-emerald-700 border-emerald-600/50'}`}>
+                         <BsLightningCharge /> DEPLOYED
+                       </div>
                     </div>
+                    <h3 className={`text-xl font-bold mb-2 transition-colors ${darkMode ? 'text-slate-100 group-hover:text-emerald-400' : 'text-slate-800 group-hover:text-emerald-600'}`}>{project.name}</h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tech.map((tech, tIdx) => (
+                         <span key={tIdx} className={`text-[10px] uppercase font-mono px-2 py-1 rounded-sm ${darkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-700'}`}>
+                           {tech}
+                         </span>
+                      ))}
+                    </div>
+                    <p className={`text-base mb-4 flex-grow font-light ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{project.description}</p>
+                    <Magnet magnetStrength={10}>
+                      <button className={`w-full py-2 border hover:bg-emerald-500/10 text-xs font-mono transition-all flex justify-center items-center gap-2 ${darkMode ? 'border-slate-700 hover:border-emerald-500 hover:text-emerald-400 text-slate-400' : 'border-slate-300 hover:border-emerald-600 hover:text-emerald-700 text-slate-500'}`}>
+                          VIEW SPECS <BsArrowRight />
+                      </button>
+                    </Magnet>
                   </div>
-                  <h3 className={`text-xl font-bold mb-2 transition-colors ${darkMode ? 'text-slate-100 group-hover:text-emerald-400' : 'text-slate-800 group-hover:text-emerald-600'}`}>{project.name}</h3>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tech.map((tech, tIdx) => (
-                      <span key={tIdx} className={`text-[10px] uppercase font-mono px-2 py-1 rounded-sm ${darkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-700'}`}>
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <p className={`text-base mb-4 flex-grow font-light ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{project.description}</p>
-                  <Magnet magnetStrength={10}>
-                    <button className={`w-full py-2 border hover:bg-emerald-500/10 text-xs font-mono transition-all flex justify-center items-center gap-2 ${darkMode ? 'border-slate-700 hover:border-emerald-500 hover:text-emerald-400 text-slate-400' : 'border-slate-300 hover:border-emerald-600 hover:text-emerald-700 text-slate-500'}`}>
-                      VIEW SPECS <BsArrowRight />
-                    </button>
-                  </Magnet>
-                </div>
-              </SpotlightCard>
-            ))}
-          </div>
+                </SpotlightCard>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
-        {/* EDUCATION (04) */}
+        {/* EDUCATION */}
         <section id="section-education" data-section="education">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>04.</span> {t.educationTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className={`space-y-8 pl-4 border-l ${darkMode ? 'border-slate-800' : 'border-slate-300'}`}>
-            {resumeData.education.map((edu, idx) => (
-              <div key={idx} className="relative pl-8">
-                <div className={`absolute -left-[5px] top-2 w-2 h-2 border border-cyan-500 rounded-full ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}></div>
-                <div className={`p-6 border transition-all rounded-xl ${darkMode ? 'border-slate-800 bg-slate-900/30 hover:bg-slate-900/80' : 'border-slate-200 bg-white/60 hover:bg-white/80'}`}>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{edu.school}</h3>
-                    <span className={`font-mono text-xs border px-2 py-1 rounded ${darkMode ? 'text-emerald-400 border-emerald-900 bg-emerald-900/20' : 'text-emerald-700 border-emerald-200 bg-emerald-100'}`}>{edu.year}</span>
-                  </div>
-                  <p className={`mb-4 ${darkMode ? 'text-cyan-500' : 'text-cyan-700'}`}>{edu.degree} - {edu.field}</p>
-                  <div className={`grid md:grid-cols-2 gap-2 text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    {edu.courses.map((c, cIdx) => (
-                      <div key={cIdx} className="flex items-center gap-2">
-                        <span className="text-slate-400 text-xs">►</span> {c}
+          <ScrollReveal>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>04.</span> {t.educationTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className={`space-y-8 pl-4 border-l ${darkMode ? 'border-slate-800' : 'border-slate-300'}`}>
+              {resumeData.education.map((edu, idx) => (
+                 <div key={idx} className="relative pl-8">
+                   <div className={`absolute -left-[5px] top-2 w-2 h-2 border border-cyan-500 rounded-full ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}></div>
+                   <div className={`p-6 border transition-all rounded-xl ${darkMode ? 'border-slate-800 bg-slate-900/30 hover:bg-slate-900/80' : 'border-slate-200 bg-white/60 hover:bg-white/80'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                         <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{edu.school}</h3>
+                         <span className={`font-mono text-xs border px-2 py-1 rounded ${darkMode ? 'text-emerald-400 border-emerald-900 bg-emerald-900/20' : 'text-emerald-700 border-emerald-200 bg-emerald-100'}`}>{edu.year}</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                      <p className={`mb-4 ${darkMode ? 'text-cyan-500' : 'text-cyan-700'}`}>{edu.degree} - {edu.field}</p>
+                      <div className={`grid md:grid-cols-2 gap-2 text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                        {edu.courses.map((c, cIdx) => (
+                          <div key={cIdx} className="flex items-center gap-2">
+                            <span className="text-slate-400 text-xs">►</span> {c}
+                          </div>
+                        ))}
+                      </div>
+                   </div>
+                 </div>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
-        {/* INTERNSHIP (05) */}
+        {/* INTERNSHIP */}
         <section id="section-internship" data-section="internship">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>05.</span> {t.internshipTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className={`p-8 border rounded-xl relative overflow-hidden shadow-sm ${darkMode ? 'border-slate-800 bg-slate-900/30' : 'border-slate-200 bg-white/60'}`}>
-            <div className={`absolute top-0 right-0 p-4 opacity-5 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              <BsAward size={150} />
+           <ScrollReveal>
+             <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>05.</span> {t.internshipTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+           </ScrollReveal>
+           <ScrollReveal delay={200}>
+            <div className={`p-8 border rounded-xl relative overflow-hidden shadow-sm ${darkMode ? 'border-slate-800 bg-slate-900/30' : 'border-slate-200 bg-white/60'}`}>
+               <div className={`absolute top-0 right-0 p-4 opacity-5 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                 <BsAward size={150} />
+               </div>
+               <div className="relative z-10">
+                 <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>{t.company}</h3>
+                 <div className={`inline-block px-3 py-1 bg-gradient-to-r from-cyan-500 to-emerald-500 font-bold rounded text-sm mb-6 ${darkMode ? 'text-slate-900' : 'text-white'}`}>
+                   {t.period}
+                 </div>
+                 <p className={`mb-8 max-w-2xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{t.description}</p>
+                 <h4 className="font-mono text-sm text-slate-500 uppercase mb-4">{t.whatIBring}</h4>
+                 <div className="grid md:grid-cols-2 gap-4">
+                   {t.achievements.map((item, i) => (
+                     <div key={i} className={`flex items-center gap-3 p-3 border transition-colors rounded ${darkMode ? 'border-slate-800 bg-slate-950/50 hover:border-cyan-500/50' : 'border-slate-200 bg-white/80 hover:border-cyan-500/50'}`}>
+                       <span className="text-emerald-500"><BsArrowRight/></span>
+                       <span className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{item}</span>
+                     </div>
+                   ))}
+                 </div>
+               </div>
             </div>
-            <div className="relative z-10">
-              <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>{t.company}</h3>
-              <div className={`inline-block px-3 py-1 bg-gradient-to-r from-cyan-500 to-emerald-500 font-bold rounded text-sm mb-6 ${darkMode ? 'text-slate-900' : 'text-white'}`}>
-                {t.period}
-              </div>
-              <p className={`mb-8 max-w-2xl ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{t.description}</p>
-              <h4 className="font-mono text-sm text-slate-500 uppercase mb-4">{t.whatIBring}</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                {t.achievements.map((item, i) => (
-                  <div key={i} className={`flex items-center gap-3 p-3 border transition-colors rounded ${darkMode ? 'border-slate-800 bg-slate-950/50 hover:border-cyan-500/50' : 'border-slate-200 bg-white/80 hover:border-cyan-500/50'}`}>
-                    <span className="text-emerald-500"><BsArrowRight /></span>
-                    <span className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+           </ScrollReveal>
         </section>
 
-        {/* INTERESTS (06) */}
+        {/* INTERESTS */}
         <section id="section-interests" data-section="interests">
-          <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-            <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>06.</span> {t.interestsTitle}
-            <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {t.hobbies.map((hobby, index) => (
-              <SpotlightCard key={index} className="p-6 h-full text-center hover:-translate-y-2 transition-transform duration-300" darkMode={darkMode}>
-                <div className={`text-5xl mb-6 flex justify-center ${darkMode ? 'text-cyan-500' : 'text-cyan-600'}`}>
-                  {hobbyIcons[index]}
-                </div>
-                <h3 className={`text-xl font-bold font-mono mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>{hobby.title}</h3>
-                <p className={`leading-relaxed text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{hobby.desc}</p>
-              </SpotlightCard>
-            ))}
-          </div>
+          <ScrollReveal>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
+              <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>06.</span> {t.interestsTitle}
+              <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {t.hobbies.map((hobby, index) => (
+                <SpotlightCard key={index} className="p-6 h-full text-center hover:-translate-y-2 transition-transform duration-300" darkMode={darkMode}>
+                  <div className={`text-5xl mb-6 flex justify-center ${darkMode ? 'text-cyan-500' : 'text-cyan-600'}`}>
+                    {hobbyIcons[index]}
+                  </div>
+                  <h3 className={`text-xl font-bold font-mono mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>{hobby.title}</h3>
+                  <p className={`leading-relaxed text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{hobby.desc}</p>
+                </SpotlightCard>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
         {/* CONTACT */}
         <section id="section-contact" data-section="contact" className="max-w-2xl mx-auto">
-          <div className={`border rounded shadow-2xl overflow-hidden ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-300 bg-white'}`}>
-            <div className={`px-4 py-2 border-b flex items-center gap-2 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'}`}>
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <div className="ml-4 font-mono text-xs text-slate-500">root@arunburapha:~</div>
-            </div>
-            <div className="p-8 font-mono">
-              <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); setTimeout(() => setFormSubmitted(false), 3000); }} className="space-y-4">
-                <div className="flex flex-col">
-                  <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsTerminal /> {t.contactName}</label>
-                  <input className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} type="text" value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} />
-                </div>
-                <div className="flex flex-col">
-                  <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsEnvelope /> {t.contactEmail}</label>
-                  <input className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} type="email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} />
-                </div>
-                <div className="flex flex-col">
-                  <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsCodeSlash /> {t.contactMessage}</label>
-                  <textarea rows="4" className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} value={contactForm.message} onChange={e => setContactForm({ ...contactForm, message: e.target.value })}></textarea>
-                </div>
-                <Magnet magnetStrength={30}>
-                  <button type="submit" className={`w-full py-3 border font-bold flex justify-center items-center gap-2 transition-all ${darkMode ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950' : 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-500 hover:text-white'}`}>
-                    {t.sendMessage} <BsArrowRight />
-                  </button>
-                </Magnet>
-                {formSubmitted && <div className={`text-center animate-pulse ${darkMode ? 'text-emerald-500' : 'text-emerald-600'}`}>{t.messageSent}</div>}
-              </form>
-            </div>
-          </div>
+           <ScrollReveal>
+             <div className={`border rounded shadow-2xl overflow-hidden ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-300 bg-white'}`}>
+               <div className={`px-4 py-2 border-b flex items-center gap-2 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'}`}>
+                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                 <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                 <div className="ml-4 font-mono text-xs text-slate-500">root@arunburapha:~</div>
+               </div>
+               <div className="p-8 font-mono">
+                  <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); setTimeout(() => setFormSubmitted(false), 3000); }} className="space-y-4">
+                     <div className="flex flex-col">
+                       <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsTerminal/> {t.contactName}</label>
+                       <input className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} type="text" value={contactForm.name} onChange={e => setContactForm({...contactForm, name: e.target.value})} />
+                     </div>
+                     <div className="flex flex-col">
+                       <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsEnvelope/> {t.contactEmail}</label>
+                       <input className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} type="email" value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} />
+                     </div>
+                     <div className="flex flex-col">
+                       <label className={`text-xs mb-1 flex items-center gap-2 ${darkMode ? 'text-cyan-600' : 'text-cyan-700'}`}><BsCodeSlash/> {t.contactMessage}</label>
+                       <textarea rows="4" className={`border p-2 focus:outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-emerald-400 focus:border-cyan-500' : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-cyan-500'}`} value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})}></textarea>
+                     </div>
+                     <Magnet magnetStrength={30}>
+                      <button type="submit" className={`w-full py-3 border font-bold flex justify-center items-center gap-2 transition-all ${darkMode ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950' : 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-500 hover:text-white'}`}>
+                          {t.sendMessage} <BsArrowRight />
+                      </button>
+                     </Magnet>
+                     {formSubmitted && <div className={`text-center animate-pulse ${darkMode ? 'text-emerald-500' : 'text-emerald-600'}`}>{t.messageSent}</div>}
+                  </form>
+               </div>
+             </div>
+           </ScrollReveal>
         </section>
 
       </div>
-
+      
       {/* FOOTER */}
       <footer className={`mt-32 border-t py-12 text-center font-mono text-xs ${darkMode ? 'border-slate-800 text-slate-500' : 'border-slate-300 text-slate-500'}`}>
         <p>{t.builtWith}</p>
         <p className="mt-2 text-slate-600">{t.quote}</p>
       </footer>
-
+      
       {/* MODAL */}
       {selectedProject && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedProject(null)}>
@@ -947,16 +1033,16 @@ export default function ResumeApp() {
               <h2 className={`text-3xl font-bold font-mono mb-4 ${darkMode ? 'text-cyan-400' : 'text-cyan-700'}`}>{selectedProject.name}</h2>
               <p className={`leading-relaxed mb-6 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{selectedProject.description}</p>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-xs font-mono text-slate-500 mb-2 uppercase">{t.keyHighlights}</h4>
-                  <ul className={`space-y-1 text-sm ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                    {selectedProject.highlights.map((h, i) => <li key={i}>+ {h}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-xs font-mono text-slate-500 mb-2 uppercase">{t.impact}</h4>
-                  <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{selectedProject.impact}</p>
-                </div>
+                 <div>
+                   <h4 className="text-xs font-mono text-slate-500 mb-2 uppercase">{t.keyHighlights}</h4>
+                   <ul className={`space-y-1 text-sm ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                     {selectedProject.highlights.map((h, i) => <li key={i}>+ {h}</li>)}
+                   </ul>
+                 </div>
+                 <div>
+                   <h4 className="text-xs font-mono text-slate-500 mb-2 uppercase">{t.impact}</h4>
+                   <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{selectedProject.impact}</p>
+                 </div>
               </div>
             </div>
           </div>
