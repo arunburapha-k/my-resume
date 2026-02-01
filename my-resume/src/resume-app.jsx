@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import profileImg from './assets/profile.png';
+import signLangImg from './assets/sign-language-ai.png';
+import iotImg from './assets/iot-lab-monitor.png';
+import voiceImg from './assets/voice-control-system.png';
 // นำเข้า React Icons (Bootstrap Icons)
 import {
   BsRobot,
@@ -538,33 +541,42 @@ export default function ResumeApp() {
     projects: [
       {
         name: language === 'en' ? "Sign Language Translation AI" : "AI แปลภาษามือ",
-        tech: ["Python", "OpenCV", "TensorFlow", "Mobile"],
-        description: language === 'en' ? "Real-time gesture recognition system for healthcare communication." : "ระบบจดจำท่าทางเรียลไทม์เพื่อการสื่อสารทางการแพทย์",
+        // อัปเดต Tech Pills: เพิ่ม GRU, Kotlin, Android Studio
+        tech: ["Python", "TensorFlow", "GRU Model", "Kotlin", "Android Studio"],
+        // อัปเดต Description: เน้นเรื่อง GRU และ Native App
+        description: language === 'en'
+          ? "Implemented a GRU model for sequential gesture recognition, integrated with a native Kotlin Android app for real-time translation."
+          : "พัฒนาระบบจดจำท่าทางด้วยโมเดล GRU สำหรับข้อมูลแบบต่อเนื่อง (Sequence) เชื่อมต่อกับแอป Android ที่เขียนด้วย Kotlin เพื่อการแปลผลที่ลื่นไหล",
         level: "Bachelor Project",
-        // แก้ไข: เพิ่มเงื่อนไขภาษา
         highlights: language === 'en' ? ["95% Accuracy", "Real-time processing", "Android Integration"] : ["ความแม่นยำ 95%", "ประมวลผลเรียลไทม์", "รองรับ Android"],
         impact: language === 'en' ? "Bridging communication gaps in hospitals." : "ช่วยลดช่องว่างการสื่อสารในโรงพยาบาล",
-        image: "data:image/svg+xml,..." // (คงเดิม)
+        image: signLangImg
       },
       {
         name: language === 'en' ? "IoT Lab Monitor" : "ระบบมอนิเตอร์แล็บ IoT",
-        tech: ["ESP32", "Current Sensor", "Firebase", "App"],
-        description: language === 'en' ? "Detects electrical usage to monitor lab availability remotely." : "ตรวจจับการใช้ไฟเพื่อดูสถานะห้องแล็บทางไกล",
+        // อัปเดต Tech Pills: เพิ่ม PZEM-004T
+        tech: ["ESP32", "PZEM-004T", "Blynk App", "WiFi"],
+        // อัปเดต Description: เน้นเรื่องเซ็นเซอร์วัดกระแสและการส่งข้อมูล
+        description: language === 'en'
+          ? "Lab monitoring system using PZEM-004T for precise current measurement, transmitting data via ESP32 to Blynk App for real-time status."
+          : "ระบบตรวจสอบการใช้งานห้องแล็บด้วยเซ็นเซอร์ PZEM-004T วัดกระแสไฟฟ้าแม่นยำสูง ส่งข้อมูลผ่าน ESP32 แสดงผลสถานะบนแอป Blynk",
         level: "Diploma Project",
-        // แก้ไข: เพิ่มเงื่อนไขภาษา
         highlights: language === 'en' ? ["Non-invasive sensor", "Real-time DB", "Low latency"] : ["เซ็นเซอร์แบบไม่สัมผัส", "ฐานข้อมูลเรียลไทม์", "ความหน่วงต่ำ"],
         impact: language === 'en' ? "Optimized resource usage." : "ช่วยบริหารจัดการทรัพยากรให้คุ้มค่า",
-        image: "data:image/svg+xml,..." // (คงเดิม)
+        image: iotImg
       },
       {
         name: language === 'en' ? "Voice Control System" : "ระบบสั่งงานด้วยเสียง",
-        tech: ["Google Assistant", "NodeMCU", "Relay"],
-        description: language === 'en' ? "Voice-activated home automation via Google Cloud." : "ระบบบ้านอัจฉริยะสั่งงานด้วยเสียงผ่าน Google Cloud",
+        // อัปเดต Tech Pills: เพิ่ม MQTT
+        tech: ["Google Assistant", "MQTT", "NodeMCU", "Google Cloud"],
+        // อัปเดต Description: เน้นเรื่อง MQTT Cloud Protocol
+        description: language === 'en'
+          ? "Smart home automation integrating Google Assistant via MQTT Cloud protocol for low-latency voice-controlled lighting."
+          : "ระบบบ้านอัจฉริยะเชื่อมต่อ Google Assistant ผ่านโปรโตคอล MQTT Cloud เพื่อสั่งเปิด-ปิดไฟด้วยเสียงจากมือถือได้อย่างรวดเร็ว",
         level: "Vocational Project",
-        // แก้ไข: เพิ่มเงื่อนไขภาษา
         highlights: language === 'en' ? ["Voice Command", "Cloud Integration", "Safety Cutoff"] : ["สั่งงานด้วยเสียง", "เชื่อมต่อ Cloud", "ระบบตัดไฟนิรภัย"],
         impact: language === 'en' ? "Accessible smart home demo." : "ตัวอย่างบ้านอัจฉริยะที่เข้าถึงได้ง่าย",
-        image: "data:image/svg+xml,..." // (คงเดิม)
+        image: voiceImg
       }
     ]
   };
