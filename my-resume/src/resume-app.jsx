@@ -5,7 +5,7 @@ import {
   BsRobot, 
   BsEnvelope, BsTelephone, BsGeoAlt, 
   BsFilm, BsPeopleFill, BsHeartPulse, 
-  BsArrowUp, BsArrowRight, BsTerminal, BsCodeSlash, BsLightningCharge, BsAward
+  BsArrowUp, BsArrowRight, BsTerminal, BsCodeSlash, BsLightningCharge, BsAward, BsBriefcase
 } from 'react-icons/bs';
 
 // --- UTILS & HOOKS ---
@@ -54,15 +54,12 @@ const TacticalCursor = ({ darkMode }) => {
 
     const onMouseOver = (e) => {
       const target = e.target;
-      
-      // Selectors: รวมทั้งปุ่ม, ข้อความ, และ "การ์ด" (hover-card)
       let interactable = target.closest(`
         button, a, input, textarea, .magnet-target,
         p, h1, h2, h3, h4, h5, h6, img, li, label,
         .hover-card
       `);
 
-      // Priority Logic: ถ้า Hover องค์ประกอบย่อยในปุ่ม ให้เกาะที่ปุ่มแทน
       if (interactable) {
         const parentControl = interactable.closest('button, a, .magnet-target');
         if (parentControl) {
@@ -87,10 +84,7 @@ const TacticalCursor = ({ darkMode }) => {
       const ease = 0.2;
 
       if (hoveredElementRef.current) {
-        // --- LOCK MODE ---
         const rect = hoveredElementRef.current.getBoundingClientRect();
-        
-        // ถ้าเป็น Card ใหญ่ๆ ให้ padding น้อยหน่อย ถ้าเป็นปุ่ม/ข้อความ ให้ padding เยอะหน่อย
         const isCard = hoveredElementRef.current.classList.contains('hover-card') || hoveredElementRef.current.classList.contains('p-8');
         const padding = isCard ? 10 : 20;
         
@@ -99,11 +93,9 @@ const TacticalCursor = ({ darkMode }) => {
         targetX = rect.left + rect.width / 2;
         targetY = rect.top + rect.height / 2;
         
-        // ดึงค่า Border Radius จาก Element จริงมาใช้ (เพื่อให้ Cursor มนเท่ากันเป๊ะ)
         const computedStyle = window.getComputedStyle(hoveredElementRef.current);
         targetRadius = computedStyle.borderRadius !== '0px' ? computedStyle.borderRadius : '12px';
       } else {
-        // --- IDLE MODE ---
         targetW = 32;
         targetH = 32;
         targetX = mouse.current.x;
@@ -111,7 +103,6 @@ const TacticalCursor = ({ darkMode }) => {
         targetRadius = "50%";
       }
 
-      // Linear Interpolation
       cursor.current.x += (targetX - cursor.current.x) * ease;
       cursor.current.y += (targetY - cursor.current.y) * ease;
       cursor.current.w += (targetW - cursor.current.w) * ease;
@@ -169,11 +160,9 @@ const TacticalCursor = ({ darkMode }) => {
           background-color: transparent;
         }
         .cursor-locked {
-          /* เส้นประแบบ Tactical */
           border: 1px dashed ${darkMode ? 'rgba(34, 211, 238, 0.5)' : 'rgba(8, 145, 178, 0.5)'};
           background-color: ${darkMode ? 'rgba(34, 211, 238, 0.03)' : 'rgba(8, 145, 178, 0.03)'};
         }
-        /* มุมฉาก 4 ด้าน (Corner Brackets) */
         .cursor-corner {
           position: absolute;
           width: 10px;
@@ -205,8 +194,6 @@ const TacticalCursor = ({ darkMode }) => {
 
 // --- EXISTING COMPONENTS ---
 
-// *** UPDATED: ScrollReveal (One-Way Animation Only) ***
-// แก้ไขให้แสดงผลแล้วค้างไว้เลย ไม่ไหลย้อนกลับ
 const ScrollReveal = ({ children, delay = 0, className = "" }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -214,7 +201,6 @@ const ScrollReveal = ({ children, delay = 0, className = "" }) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // ถ้าเลื่อนมาเจอ (isIntersecting) ให้แสดงผลและยกเลิกการสังเกตทันที (unobserve)
         if (entry.isIntersecting) {
           setIsVisible(true);
           if (ref.current) observer.unobserve(ref.current);
@@ -417,7 +403,8 @@ export default function ResumeApp() {
 
   useEffect(() => {
     if (loading) return;
-    const ids = ['about', 'skills', 'projects', 'education', 'internship', 'interests', 'contact'];
+    // UPDATED: Added 'experience' to the ids list
+    const ids = ['about', 'skills', 'projects', 'education', 'experience', 'internship', 'interests', 'contact'];
     const elements = ids.map((id) => document.getElementById(`section-${id}`)).filter(Boolean);
     if (!elements.length) return;
     const observer = new IntersectionObserver((entries) => { const visible = entries.filter((e) => e.isIntersecting); if (!visible.length) return; setActiveSection(visible[0].target.getAttribute('data-section')); }, { threshold: 0.3 });
@@ -429,20 +416,28 @@ export default function ResumeApp() {
 
   const translations = {
     en: {
-      availableFor: "SYSTEM: ONLINE / READY FOR INTERNSHIP", ctaProjects: "Initialize Projects", ctaContact: "Ping Me", ctaGithub: "GitHub Repo", aboutTitle: "// ABOUT_ME", educationTitle: "// EDUCATION_LOG", skillsTitle: "// TECHNICAL_CAPABILITIES", projectsTitle: "// DEPLOYED_PROJECTS", keyHighlights: "Specs:", impact: "Outcome:", internshipTitle: "// INTERNSHIP_PROTOCOL", whatIBring: "Capabilities:", interestsTitle: "// BACKGROUND_PROCESSES", contactTitle: "// ESTABLISH_CONNECTION", contactSubtitle: "Initiate communication protocol...", contactName: "Input Name", contactEmail: "Input Email", contactMessage: "Input Data Packet", sendMessage: "Transmit Data", messageSent: "Transmission Successful!", viewDemo: "Run Demo", viewCode: "Source Code", builtWith: "System architecture: React • Status: Open", quote: '"Hardware eventually fails. Software eventually works." - Michael Hartung', loading: "SYSTEM BOOT SEQUENCE...",
+      availableFor: "SYSTEM: ONLINE / READY FOR INTERNSHIP", ctaProjects: "Initialize Projects", ctaContact: "Ping Me", ctaGithub: "GitHub Repo", 
+      aboutTitle: "// ABOUT_ME", educationTitle: "// EDUCATION_LOG", experienceTitle: "// EXPERIENCE_LOG", skillsTitle: "// TECHNICAL_CAPABILITIES", projectsTitle: "// DEPLOYED_PROJECTS", 
+      keyHighlights: "Specs:", impact: "Outcome:", internshipTitle: "// INTERNSHIP_PROTOCOL", whatIBring: "Capabilities:", interestsTitle: "// BACKGROUND_PROCESSES", 
+      contactTitle: "// ESTABLISH_CONNECTION", contactSubtitle: "Initiate communication protocol...", contactName: "Input Name", contactEmail: "Input Email", contactMessage: "Input Data Packet", sendMessage: "Transmit Data", messageSent: "Transmission Successful!", viewDemo: "Run Demo", viewCode: "Source Code", builtWith: "System architecture: React • Status: Open", quote: '"Hardware eventually fails. Software eventually works." - Michael Hartung', loading: "SYSTEM BOOT SEQUENCE...",
       name: "Arunburapha Keoket", title: "Electronic Computer Technology Student", about: "Fourth-year student in Electronic Computer Technology at King Mongkut's University of Technology North Bangkok. I possess strong learning agility, a solid grasp of programming concepts, and effective teamwork skills. I am currently seeking an internship opportunity in Programming, Web Development, and Database Management, eager to apply my academic knowledge to real-world projects and contribute to organizational success.",
       position: "Seeking Internship Position", company: "Available for Internship", period: "20 April 2026 - 31 July 2026", description: "Targeting sectors: Programming, Web Development, and Database Management. Ready to deploy skills in real-world environments.",
       achievements: [ "Polyglot programming capabilities", "IoT System Architecture & Integration", "Full-cycle project deployment", "Rapid algorithmic problem solving" ],
       hobbies: [ { title: "Movies", desc: "Enjoy watching diverse genres to analyze narratives and gain new perspectives." }, { title: "Team Collaboration", desc: "Keen interest in studying effective teamwork dynamics and collaborative processes." }, { title: "Self-Improvement", desc: "Prioritize work-life balance and mindfulness activities to ensure mental readiness for productive work." } ],
-      sections: [ { id: 'about', label: 'About' }, { id: 'skills', label: 'Skills' }, { id: 'projects', label: 'Projects' }, { id: 'education', label: 'Education' }, { id: 'internship', label: 'Internship' }, { id: 'interests', label: 'Interests' }, { id: 'contact', label: 'Contact' } ]
+      // UPDATED: Added Experience to navigation
+      sections: [ { id: 'about', label: 'About' }, { id: 'skills', label: 'Skills' }, { id: 'projects', label: 'Projects' }, { id: 'education', label: 'Education' }, { id: 'experience', label: 'Experience' }, { id: 'internship', label: 'Internship' }, { id: 'interests', label: 'Interests' }, { id: 'contact', label: 'Contact' } ]
     },
     th: {
-      availableFor: "สถานะ: ออนไลน์ / พร้อมฝึกงาน", ctaProjects: "ดูโปรเจกต์", ctaContact: "ติดต่อ", ctaGithub: "GitHub", aboutTitle: "// เกี่ยวกับฉัน", educationTitle: "// ประวัติการศึกษา", skillsTitle: "// ทักษะทางเทคนิค", projectsTitle: "// โปรเจกต์ที่ใช้งานจริง", keyHighlights: "สเปค:", impact: "ผลลัพธ์:", internshipTitle: "// โอกาสฝึกงาน", whatIBring: "ความสามารถ:", interestsTitle: "// กระบวนการเบื้องหลัง", contactTitle: "// สร้างการเชื่อมต่อ", contactSubtitle: "เริ่มโปรโตคอลการสื่อสาร...", contactName: "ชื่อของคุณ", contactEmail: "อีเมล", contactMessage: "ข้อมูลที่ต้องการส่ง", sendMessage: "ส่งข้อมูล", messageSent: "ส่งข้อมูลสำเร็จ!", viewDemo: "รันเดโม", viewCode: "ดูซอร์สโค้ด", builtWith: "สถาปัตยกรรมระบบ: React • สถานะ: เปิดรับ", quote: '"ฮาร์ดแวร์พังได้เสมอ ซอฟต์แวร์ทำงานได้เสมอ (ในที่สุด)"', loading: "กำลังบูตระบบ...",
-      name: "อรุณบูรพา แก้วเกล็ด", title: "นักศึกษาอิเล็กทรอนิกส์คอมพิวเตอร์เทคโนโลยี", about: "นักศึกษาชั้นปีที่ 4 สาขาเทคโนโลยีคอมพิวเตอร์อิเล็กทรอนิกส์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ ผมมีทักษะการเรียนรู้ที่รวดเร็ว เข้าใจหลักการเขียนโปรแกรมอย่างลึกซึ้ง และมีทักษะการทำงานเป็นทีมที่ดีเยี่ยม ขณะนี้กำลังมองหาโอกาสฝึกงานในด้านการเขียนโปรแกรม, การพัฒนาเว็บ และการจัดการฐานข้อมูล โดยมีความมุ่งมั่นที่จะนำความรู้ทางวิชาการมาประยุกต์ใช้กับโปรเจกต์จริงเพื่อสร้างความสำเร็จให้กับองค์กร",
+      availableFor: "สถานะ: ออนไลน์ / พร้อมฝึกงาน", ctaProjects: "ดูโปรเจกต์", ctaContact: "ติดต่อ", ctaGithub: "GitHub", 
+      aboutTitle: "// เกี่ยวกับฉัน", educationTitle: "// ประวัติการศึกษา", experienceTitle: "// ประสบการณ์ทำงาน", skillsTitle: "// ทักษะทางเทคนิค", projectsTitle: "// โปรเจกต์ที่ได้พัฒนา", 
+      keyHighlights: "สเปค:", impact: "ผลลัพธ์:", internshipTitle: "// โอกาสฝึกงาน", whatIBring: "ความสามารถ:", interestsTitle: "// สิ่งที่สนใจ", 
+      contactTitle: "// สร้างการเชื่อมต่อ", contactSubtitle: "เริ่มโปรโตคอลการสื่อสาร...", contactName: "ชื่อของคุณ", contactEmail: "อีเมล", contactMessage: "ข้อมูลที่ต้องการส่ง", sendMessage: "ส่งข้อมูล", messageSent: "ส่งข้อมูลสำเร็จ!", viewDemo: "รันเดโม", viewCode: "ดูซอร์สโค้ด", builtWith: "สถาปัตยกรรมระบบ: React • สถานะ: เปิดรับ", quote: '"ฮาร์ดแวร์พังได้เสมอ ซอฟต์แวร์ทำงานได้เสมอ (ในที่สุด)"', loading: "กำลังบูตระบบ...",
+      name: "อรุณบูรพา แก้วเกล็ด", title: "นักศึกษาอิเล็กทรอนิกส์คอมพิวเตอร์เทคโนโลยี", about: "นักศึกษาชั้นปีที่ 4 สาขาอิเล็กทรอนิกส์คอมพิวเตอร์เทคโนโลยี มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ ผมมีทักษะการเรียนรู้ที่รวดเร็ว เข้าใจหลักการเขียนโปรแกรมอย่างลึกซึ้ง และมีทักษะการทำงานเป็นทีมที่ดีเยี่ยม ขณะนี้กำลังมองหาโอกาสฝึกงานในด้านการเขียนโปรแกรม, การพัฒนาเว็บ และการจัดการฐานข้อมูล โดยมีความมุ่งมั่นที่จะนำความรู้ทางวิชาการมาประยุกต์ใช้กับโปรเจกต์จริงเพื่อสร้างความสำเร็จให้กับองค์กร",
       position: "กำลังหาที่ฝึกงาน", company: "พร้อมฝึกงาน", period: "20 เมษายน 2026 - 31 กรกฎาคม 2026", description: "เป้าหมาย: การเขียนโปรแกรม, การพัฒนาเว็บ และการจัดการฐานข้อมูล พร้อมนำทักษะไปใช้ในสภาพแวดล้อมจริง",
       achievements: [ "ความสามารถในการเขียนโปรแกรมหลายภาษา", "สถาปัตยกรรมระบบ IoT และการเชื่อมต่อ", "การส่งมอบโปรเจกต์ครบวงจร", "การแก้ปัญหาเชิงอัลกอริทึมอย่างรวดเร็ว" ],
       hobbies: [ { title: "ภาพยนตร์", desc: "ชอบดูภาพยนตร์หลากหลายแนวเพื่อวิเคราะห์การเล่าเรื่องและเปิดมุมมองใหม่ๆ" }, { title: "การทำงานร่วมกัน", desc: "สนใจศึกษาพลวัตการทำงานเป็นทีมและกระบวนการทำงานร่วมกันที่มีประสิทธิภาพ" }, { title: "การพัฒนาตนเอง", desc: "ให้ความสำคัญกับสมดุลชีวิตและการฝึกสติเพื่อเตรียมความพร้อมทางจิตใจสำหรับการทำงานที่มีประสิทธิภาพ" } ],
-      sections: [ { id: 'about', label: 'เกี่ยวกับ' }, { id: 'skills', label: 'ทักษะ' }, { id: 'projects', label: 'โปรเจกต์' }, { id: 'education', label: 'การศึกษา' }, { id: 'internship', label: 'ฝึกงาน' }, { id: 'interests', label: 'ความสนใจ' }, { id: 'contact', label: 'ติดต่อ' } ]
+      // UPDATED: Added Experience to navigation
+      sections: [ { id: 'about', label: 'เกี่ยวกับ' }, { id: 'skills', label: 'ทักษะ' }, { id: 'projects', label: 'โปรเจกต์' }, { id: 'education', label: 'การศึกษา' }, { id: 'experience', label: 'ประสบการณ์' }, { id: 'internship', label: 'ฝึกงาน' }, { id: 'interests', label: 'ความสนใจ' }, { id: 'contact', label: 'ติดต่อ' } ]
     }
   };
 
@@ -456,8 +451,23 @@ export default function ResumeApp() {
       { category: language === 'en' ? "SPECIALIZED" : "เฉพาะทาง", items: [{ name: "IoT Systems", level: 85 }, { name: "AI/ML", level: 80 }, { name: "Microcontrollers", level: 85 }] }
     ],
     education: [
-      { school: language === 'en' ? "KMUTNB" : "มจพ.", degree: language === 'en' ? "B.Ind.Tech (Continuing)" : "อุตสาหกรรมศาสตรบัณฑิต (ต่อเนื่อง)", field: language === 'en' ? "Electronic Computer Tech" : "เทคโนโลยีคอมพิวเตอร์อิเล็กทรอนิกส์", year: "2024 - 2026", courses: ["Computer Programming", "Database Tech", "Web App Dev", "Mobile App Dev", "OOP"] },
+      { school: language === 'en' ? "KMUTNB" : "มจพ.", degree: language === 'en' ? "B.Ind.Tech (Continuing)" : "อุตสาหกรรมศาสตรบัณฑิต (ต่อเนื่อง)", field: language === 'en' ? "Electronic Computer Technology" : "อิเล็กทรอนิกส์คอมพิวเตอร์เทคโนโลยี", year: "2024 - 2026", courses: ["Computer Programming", "Database Tech", "Web App Dev", "Mobile App Dev", "OOP"] },
       { school: language === 'en' ? "Chanthaburi Tech" : "วท.จันทบุรี", degree: language === 'en' ? "Diploma" : "ปวส.", field: language === 'en' ? "Electronics" : "อิเล็กทรอนิกส์", year: "2022 - 2024", courses: ["Network Systems", "Programming", "Microcontrollers", "PLC"] }
+    ],
+    // UPDATED: Added experience data from PDF
+    experience: [
+      {
+        role: language === 'en' ? "Assistant Technician Intern" : "นักศึกษาฝึกงานผู้ช่วยช่าง",
+        company: language === 'en' ? "EV Car (Thailand) Co., Ltd" : "บริษัท อีวี คาร์ (ประเทศไทย) จำกัด",
+        description: language === 'en' ? "Assisted in maintenance and service of electric vehicles." : "ปฏิบัติงานผู้ช่วยช่างในการซ่อมบำรุงและบริการรถยนต์ไฟฟ้า",
+        tag: language === 'en' ? "Internship" : "ฝึกงาน"
+      },
+      {
+        role: language === 'en' ? "Assistant Technician Intern" : "นักศึกษาฝึกงานผู้ช่วยช่าง",
+        company: language === 'en' ? "Chiewchan Service Chanthaburi" : "เชี่ยวชาญ เซอร์วิส จันทบุรี",
+        description: language === 'en' ? "Service & Spare Parts Center support." : "สนับสนุนงานศูนย์บริการและคลังอะไหล่",
+        tag: language === 'en' ? "Internship" : "ฝึกงาน"
+      }
     ],
     projects: [
       { name: language === 'en' ? "Sign Language Translation AI" : "AI แปลภาษามือ", tech: ["Python", "OpenCV", "TensorFlow", "Mobile"], description: language === 'en' ? "Real-time gesture recognition system for healthcare communication." : "ระบบจดจำท่าทางเรียลไทม์เพื่อการสื่อสารทางการแพทย์", level: "Bachelor Project", highlights: ["95% Accuracy", "Real-time processing", "Android Integration"], impact: "Bridging communication gaps in hospitals.", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230ea5e9;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2310b981;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='%230f172a' width='400' height='300'/%3E%3Crect fill='url(%23g1)' x='50' y='50' width='300' height='200' rx='10' opacity='0.2'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='40' fill='%2322d3ee'%3EAI_HAND_RECOGNITION%3C/text%3E%3C/svg%3E" },
@@ -575,10 +585,6 @@ export default function ResumeApp() {
 
             {/* 2. Image Container (Layer บน z-10) */}
             <div className="relative z-10 w-auto h-[450px] md:h-[600px] flex justify-center items-end"> 
-                {/* UPDATED: ลบ Blocker Div ออกแล้ว 
-                    เพื่อให้พื้นหลังโปร่งใส 100% ตามที่ต้องการ
-                */}
-
                 {/* ตัวรูปโปรไฟล์ */}
                 <img 
                   src={profileImg} 
@@ -700,9 +706,30 @@ export default function ResumeApp() {
           </ScrollReveal>
         </section>
 
+        {/* --- NEW SECTION: EXPERIENCE (ADDED) --- */}
+        <section id="section-experience" data-section="experience">
+          <ScrollReveal>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400"><span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>05.</span> {t.experienceTitle}<span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span></h2>
+          </ScrollReveal>
+          <ScrollReveal delay={200}>
+            <div className={`space-y-8 pl-4 border-l ${darkMode ? 'border-slate-800' : 'border-slate-300'}`}>
+              {resumeData.experience.map((exp, idx) => (
+                 <div key={idx} className="relative pl-8">
+                   <div className={`absolute -left-[5px] top-2 w-2 h-2 border border-cyan-500 rounded-full ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}></div>
+                   <div className={`hover-card p-6 border transition-all rounded-xl ${darkMode ? 'border-slate-800 bg-slate-900/30 hover:bg-slate-900/80' : 'border-slate-200 bg-white/60 hover:bg-white/80'}`}>
+                      <div className="flex justify-between items-start mb-2"><h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{exp.company}</h3><span className={`font-mono text-xs border px-2 py-1 rounded ${darkMode ? 'text-emerald-400 border-emerald-900 bg-emerald-900/20' : 'text-emerald-700 border-emerald-200 bg-emerald-100'}`}>{exp.tag}</span></div>
+                      <p className={`mb-2 font-mono ${darkMode ? 'text-cyan-500' : 'text-cyan-700'}`}>{exp.role}</p>
+                      <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{exp.description}</p>
+                   </div>
+                 </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </section>
+
         <section id="section-internship" data-section="internship">
            <ScrollReveal>
-             <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400"><span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>05.</span> {t.internshipTitle}<span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span></h2>
+             <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400"><span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>06.</span> {t.internshipTitle}<span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span></h2>
            </ScrollReveal>
            <ScrollReveal delay={200}>
             {/* ADD HOVER CARD */}
@@ -721,7 +748,7 @@ export default function ResumeApp() {
 
         <section id="section-interests" data-section="interests">
           <ScrollReveal>
-            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400"><span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>06.</span> {t.interestsTitle}<span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span></h2>
+            <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400"><span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>07.</span> {t.interestsTitle}<span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span></h2>
           </ScrollReveal>
           <ScrollReveal delay={200}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
