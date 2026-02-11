@@ -27,12 +27,11 @@ const Hero = ({ darkMode, t, typedText, scrollToSection }) => {
             <ShinyText text={t.availableFor} className={darkMode ? 'text-emerald-400' : 'text-emerald-700'} />
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight leading-tight">
-            <span className={`font-mono text-2xl block mb-2 ${darkMode ? 'text-slate-500' : 'text-slate-600'}`}>{t.aboutTitle}</span>
+          <h1 className="text-4xl md:text-7xl font-bold mb-4 tracking-tight leading-tight">
             <DecryptedText text={t.name} className={darkMode ? 'text-white' : 'text-slate-900'} />
           </h1>
           <p className={`text-xl md:text-2xl font-mono mb-6 ${darkMode ? 'text-cyan-500' : 'text-cyan-700'}`}>{t.title}</p>
-          
+
           {/* Contact Info */}
           <div className={`flex flex-col md:flex-row gap-2 md:gap-6 mb-8 font-mono text-sm md:text-base ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
             <a href="tel:0624645582" className="flex items-center gap-2 hover:text-emerald-500 transition-colors group">
@@ -48,7 +47,7 @@ const Hero = ({ darkMode, t, typedText, scrollToSection }) => {
               arunburapha.k@gmail.com
             </a>
           </div>
-          
+
           <div className={`h-12 flex items-center font-mono text-xl md:text-2xl mb-8 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
             {typedText}<span className="animate-pulse text-cyan-500">_</span>
           </div>
@@ -74,16 +73,8 @@ const Hero = ({ darkMode, t, typedText, scrollToSection }) => {
             <div className={`absolute inset-[15%] border-4 border-dotted rounded-full animate-[spin_20s_linear_infinite_reverse] ${darkMode ? 'border-emerald-500/40' : 'border-emerald-600/30'}`}></div>
             <div className="absolute inset-[25%] bg-cyan-500/10 blur-3xl rounded-full"></div>
           </div>
-          <div className="relative z-10 w-auto h-[450px] md:h-[600px] flex justify-center items-end">
-            <img
-              src={profileImg}
-              alt="Arunburapha Profile"
-              className="magnet-target relative w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-              style={{
-                maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
-              }}
-            />
+          <div className="hidden md:flex relative z-10 w-full h-[600px] justify-end items-end">
+            <img src={profileImg} className="object-contain h-full" />
           </div>
         </div>
       </div>

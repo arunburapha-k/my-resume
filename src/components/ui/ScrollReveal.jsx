@@ -5,28 +5,17 @@ const ScrollReveal = ({ children, delay = 0, className = "" }) => {
   const ref = useRef(null);
 
   useEffect(() => {
-    // 1. สร้างตัวแปรมารับค่า ref.current เก็บไว้ก่อน
-    const currentRef = ref.current; 
+    const currentRef = ref.current; // Copy ref ไว้ก่อน
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true);
+    }, { threshold: 0.1 });
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          // 2. ใช้ currentRef แทน ref.current
-          if (currentRef) observer.unobserve(currentRef);
-        }
-      },
-      { threshold: 0.1, rootMargin: "-50px" }
-    );
-
-    // 3. ใช้ currentRef ในการ observe
     if (currentRef) observer.observe(currentRef);
 
     return () => {
-      // 4. ใช้ currentRef ในการ cleanup (จุดที่ Error ฟ้อง)
-      if (currentRef) observer.disconnect();
+      if (currentRef) observer.disconnect(); // ใช้ตัวแปรที่ copy ไว้
     };
-  }, []); // dependency array ว่างเหมือนเดิม
+  }, []);
 
   return (
     <div
