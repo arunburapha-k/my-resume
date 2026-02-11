@@ -8,9 +8,10 @@ const Projects = ({ darkMode, t, resumeData, setSelectedProject }) => {
   return (
     <section id="section-projects" data-section="projects">
       <ScrollReveal>
-        <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-          <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>03.</span> {t.projectsTitle}
-          <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+        <h2 className="font-mono text-2xl md:text-3xl mb-12 flex flex-wrap items-center gap-4 text-slate-400 leading-tight">
+          <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>03.</span>
+          <span className="break-words max-w-full">{t.projectsTitle}</span>
+          <span className={`h-px flex-grow min-w-[50px] ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
         </h2>
       </ScrollReveal>
       <ScrollReveal delay={200}>

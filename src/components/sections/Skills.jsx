@@ -7,9 +7,10 @@ const Skills = ({ darkMode, t, resumeData, getSkillLevel }) => {
   return (
     <section id="section-skills" data-section="skills">
       <ScrollReveal>
-        <h2 className="font-mono text-3xl mb-12 flex items-center gap-4 text-slate-400">
-          <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>02.</span> {t.skillsTitle}
-          <span className={`h-px flex-grow ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
+        <h2 className="font-mono text-2xl md:text-3xl mb-12 flex flex-wrap items-center gap-4 text-slate-400 leading-tight">
+          <span className={darkMode ? 'text-cyan-500' : 'text-cyan-700'}>02.</span>
+          <span className="break-words max-w-full">{t.skillsTitle}</span>
+          <span className={`h-px flex-grow min-w-[50px] ${darkMode ? 'bg-slate-800' : 'bg-slate-300'}`}></span>
         </h2>
       </ScrollReveal>
       <ScrollReveal delay={200}>
